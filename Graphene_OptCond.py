@@ -30,7 +30,7 @@ um = 1e-6
 
 ## Parameter used here from Emani,Nanoletter,2012
 #nd = np.array([3e11,1e12,1e13])
-nd_ = [6e16] # Carrier densities, m^-2
+#nd_ = [6e16] # Carrier densities, m^-2
 T = 300 
 t_Gr = 1*nm # Graphene thickness
 
@@ -56,24 +56,23 @@ def sigma_inter(wavelength,omega_T,omega_F,c,ee,hbar):
 
 epsReal,epsImag = [],[]
 sigReal,sigImag = [],[]
-for nd in nd_:
+wavelength =np.arange(1,10,.001)*um
+#Ef = hbar * vf * (pi * nd)**.5
+EfeV_ = np.arange(.2,1.2,.2)# hbareV * vf * (pi * nd)**.5
+for EfeV in EfeV_:
     epsReal.clear()
     sigReal.clear()
     epsImag.clear()
     sigImag.clear()
-    fileOut = open(f'Graphene_OptCond_CarrierDensity={nd*1e-4:.1e} cm^-1.txt','w')
-    fileOut.write("##Wavelength (um) | epsReal | epsImag | sigmaReal | sigmaImag | sigma\n")
-    wavelength =np.arange(.1,10,1)*um
-    #Ef = hbar * vf * (pi * nd)**.5
-    EfeV = .24# hbareV * vf * (pi * nd)**.5
     Ef = EfeV*ee 
-    mu = 1#tau * ee * vf**2 / Ef
-    tau = mu*Ef/ee/vf**2 
-    print(tau)
+    MU = 1#tau * ee * vf**2 / Ef
+    tau = MU*Ef/ee/vf**2 
     omega_T = kB*T/hbar
     omega_F = EfeV/hbareV
     rat = omega_T/omega_F
-    print('\u03c9_T/\u03c9_{F}'+f'={rat} Carrier Mobiliy = {mu*1e4:.0f} Fermi Energy = {EfeV:.3f} eV')
+    fileOut = open(f'Graphene_OptCond_MU={MU*10000:.0f}EF={EfeV:.1f} eV.txt','w')
+    fileOut.write("##Wavelength (um) | sigmaReal | sigmaImag \n")
+    print('Carrier Mobility = {MU*10000:.0f} cm^2/(V s) Fermi Energy = {EfeV:.1f} eV')
     for wv in wavelength:
         omega = 2*np.pi*c/wv
         sig_intra = sigma_intra(wv,omega_T,omega_F,tau,ee,hbar)
@@ -85,8 +84,8 @@ for nd in nd_:
         epsImag.append(eps_Gr.imag)
         sigReal.append(sigma.real) 
         sigImag.append(sigma.imag) 
-        res = f"{hbar*omega/Ef} {eps_Gr.real} {eps_Gr.imag} {eps_Gr} {sigma.real*4*hbar/ee**2} {sigma.imag*4*hbar/ee**2} {sigma*4*hbar/ee**2}\n" 
-        #res = f"{wv/um} {sigma.real} {sigma.imag} {sigma}\n" 
+        #res = f"{hbar*omega/Ef} {eps_Gr.real} {eps_Gr.imag} {eps_Gr} {sigma.real*4*hbar/ee**2} {sigma.imag*4*hbar/ee**2} {sigma*4*hbar/ee**2}\n" 
+        res = f"{wv/um} {sigma.real} {sigma.imag}\n" 
         fileOut.write(res)
     
     """ 
@@ -106,6 +105,7 @@ for nd in nd_:
 
 fileOut.close()
 
+"""
 ### Plot graph
 import pandas as pd
 fig,ax1 = plt.subplots()
@@ -120,10 +120,10 @@ for i,nd in enumerate(nd_):
     sigReal = df[df.columns[4]]
     sigImag = df[df.columns[5]]
     
-    """    
+     
     ax1.plot(wvl,epsReal,label='$n_{{2D}}$'+f' = {nd*1e-4:.0e} cm$^{({-2})}$',linewidth=5,color=c_[i])
     ax2.plot(wvl,epsImag,'--',linewidth=5,color=c_[i])
-    """ 
+     
     #ax1.plot(wvl,sigReal,label='$n_{{2D}}$'+f'={nd*1e-4:.0e} cm$^{({-2})}$',linewidth=5,color=c_[i])
     ax1.plot(wvl,sigReal,label='Real(\u03c3)',linewidth=5,color='black')
     ax1.plot(wvl,sigImag,'--',label='Imag(\u03c3)',linewidth=5,color='red')
@@ -140,5 +140,5 @@ ax1.set_ylabel('$\u03c3$',fontsize=20)
 #ax2.set_ylabel('Im(${\u03B5_r}$)',fontsize=15)
 ax1.legend(loc='best',frameon=False,fontsize=20) 
 plt.show()
-
+"""
 
